@@ -1,4 +1,4 @@
 // src/assets/config.json
 export const environment = {
-  "apiUrl": "https://tp04-api-lesecq-charles.onrender.com/api"
+  "apiUrl": "https://tp06-api-lesecq-charles.onrender.com/api"
 }

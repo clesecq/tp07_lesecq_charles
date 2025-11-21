@@ -1,4 +1,4 @@
-# Tp04
+# TP
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.7.
 
@@ -62,7 +62,7 @@ For more information on using the Angular CLI, including detailed command refere
 
 Ce depot contient deja les fichiers necessaires pour une mise en production sur [Render.com](https://render.com):
 
-- `render.yaml` declare un service **Static Site** avec la commande de build `npm install && npm run build` et publie le dossier `dist/tp04/browser`.
+- `render.yaml` declare un service **Static Site** avec la commande de build `npm install && npm run build` et publie le dossier `dist/tp/browser`.
 - `static.json` configure une redirection globale vers `index.html`, indispensable pour une application Angular monopage.
 
 ### Procedure
@@ -70,6 +70,6 @@ Ce depot contient deja les fichiers necessaires pour une mise en production sur 
 1. Pousser les changements sur votre depot Git.
 2. Sur le tableau de bord Render, creer un **Static Site** a partir de ce depot.
 3. Render detecte automatiquement `render.yaml`; valider les parametres proposes puis lancer le deploiement.
-4. Une fois le build termine, le site est accessible a l’adresse fournie par Render (ex: `https://tp04-angular.onrender.com`).
+4. Une fois le build termine, le site est accessible a l’adresse fournie par Render (ex: `https://tp-angular.onrender.com`).
 
 Pour les builds suivants, Render regenerera automatiquement le site a chaque push sur la branche surveillee.
