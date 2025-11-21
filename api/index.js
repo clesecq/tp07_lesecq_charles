@@ -3,7 +3,8 @@ import cors from "cors";
 import { sequelize } from "./models";
 import routes from "./routes";
 
-const app  = express ();
+const app  = express();
+const port = process.env.PORT || 3000; 
 
 var corsOptions = {
   origin: "*",
@@ -37,7 +38,7 @@ sequelize.sync()
 routes(app);
 
 // set port, listen for requests
-app.listen(3000, () => {
-  console.log(`Server is running on port 3000.`);
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}.`);
 });
 

@@ -34,17 +34,27 @@ projects:
       plan: free
       envVars:
       - key: DB_USER
-        sync: false
+        fromService:
+          name: tp04-db
+          property: user
       - key: DB_PORT
-        sync: false
+        fromService:
+          name: tp04-db
+          property: port
       - key: DB_PASSWORD
-        sync: false
+        fromService:
+          name: tp04-db
+          property: password
       - key: DB_NAME
-        sync: false
+        fromService:
+          name: tp04-db
+          property: databaseName
       - key: DB_HOST
-        sync: false
+        fromService:
+          name: tp04-db
+          property: host
       - key: ACCESS_TOKEN_SECRET
-        sync: false
+        generateValue: true
       region: frankfurt
       buildCommand: pnpm install && pnpm build
       startCommand: pnpm start
