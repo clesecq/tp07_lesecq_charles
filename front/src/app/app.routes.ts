@@ -27,6 +27,11 @@ export const routes: Routes = [
 			import('./pollution/pages/pollution-detail.component').then((m) => m.PollutionDetailComponent)
 	},
 	{
+		path: 'favoris',
+		loadComponent: () =>
+			import('./pollution/pages/favorites-list.component').then((m) => m.FavoritesListComponent)
+	},
+	{
 		path: 'users',
 		loadComponent: () =>
 			import('./user/pages/user-list.component').then((m) => m.UserListComponent)

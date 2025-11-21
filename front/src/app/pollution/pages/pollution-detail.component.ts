@@ -7,6 +7,7 @@ import { map, startWith } from 'rxjs';
 import { PollutionService } from '../pollution.service';
 import { PollutionPayload, PollutionType } from '../pollution.model';
 import { finiteNumberValidator, validDateTimeValidator } from '../pollution.validators';
+import { FavoritesService } from '../favorites.service';
 
 @Component({
   selector: 'app-pollution-detail',
@@ -21,6 +22,7 @@ export class PollutionDetailComponent {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly service = inject(PollutionService);
   private readonly destroyRef = inject(DestroyRef);
+  readonly favoritesService = inject(FavoritesService);
 
   readonly isLoading = this.service.isLoading;
   readonly error = this.service.error;
@@ -164,6 +166,18 @@ export class PollutionDetailComponent {
           void this.router.navigate(['/pollutions']);
         }
       });
+  }
+
+  toggleFavorite() {
+    const id = this.pollutionId();
+    if (id !== null) {
+      this.favoritesService.toggle(id);
+    }
+  }
+
+  isFavorite(): boolean {
+    const id = this.pollutionId();
+    return id !== null && this.favoritesService.isFavorite(id);
   }
 
   labelType(type: PollutionType) {

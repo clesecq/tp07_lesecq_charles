@@ -1,0 +1,98 @@
+<section class="page">
+  <header class="page__header">
+    <div>
+      <h2>Mes pollutions favorites</h2>
+      <p>Retrouvez toutes les pollutions que vous avez ajoutées en favoris.</p>
+    </div>
+    <div class="page__actions">
+      <a routerLink="/pollutions" class="page__link">Retour à la liste</a>
+    </div>
+  </header>
+
+  @if (error()) {
+    <p class="alert alert--error">{{ error() }}</p>
+  }
+
+  @if (isLoading()) {
+    <p class="alert">Chargement des données en cours...</p>
+  }
+
+  @if (!isLoading() && favoritePollutions().length === 0) {
+    <section class="panel panel--empty">
+      <div class="empty-state">
+        <div class="empty-state__icon">☆</div>
+        <h3>Aucun favori pour le moment</h3>
+        <p>Commencez par ajouter des pollutions à vos favoris depuis la liste principale.</p>
+        <a routerLink="/pollutions" class="btn btn--primary">Voir toutes les pollutions</a>
+      </div>
+    </section>
+  }
+
+  @if (favoritePollutions().length > 0) {
+    <section class="panel">
+      <div class="favorites-count">
+        <strong>{{ favoritePollutions().length }}</strong> pollution{{ favoritePollutions().length > 1 ? 's' : '' }} en favoris
+      </div>
+    </section>
+
+    <section class="panel panel--table">
+      <table>
+        <caption class="sr-only">Pollutions favorites</caption>
+        <thead>
+          <tr>
+            <th scope="col">Titre</th>
+            <th scope="col">Type</th>
+            <th scope="col">Observation</th>
+            <th scope="col">Lieu</th>
+            <th scope="col">Coordonnées</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (pollution of favoritePollutions(); track pollution.id) {
+            <tr>
+              <td>
+                <strong>{{ pollution.title }}</strong>
+              </td>
+              <td>
+                <span
+                  class="badge"
+                  [class.badge--plastique]="pollution.type === 'plastique'"
+                  [class.badge--chimique]="pollution.type === 'chimique'"
+                  [class.badge--depot]="pollution.type === 'depot-sauvage'"
+                  [class.badge--eau]="pollution.type === 'eau'"
+                  [class.badge--air]="pollution.type === 'air'"
+                  [class.badge--autre]="pollution.type === 'autre'"
+                >
+                  {{ labelType(pollution.type) }}
+                </span>
+              </td>
+              <td>{{ pollution.observedAt | date: 'dd/MM/yyyy' }}</td>
+              <td>{{ pollution.location }}</td>
+              <td>
+                <span>{{ pollution.latitude }}, {{ pollution.longitude }}</span>
+                @if (pollution.photoUrl) {
+                  <p class="table__note">
+                    <a [href]="pollution.photoUrl" target="_blank" rel="noopener">Voir la photo</a>
+                  </p>
+                }
+              </td>
+              <td class="table__actions">
+                <button 
+                  type="button" 
+                  (click)="toggleFavorite(pollution.id)"
+                  title="Retirer des favoris"
+                  class="btn-favorite btn-favorite--active"
+                >
+                  ★
+                </button>
+                <a [routerLink]="['/pollutions', pollution.id]">Détails</a>
+                <button type="button" (click)="onDelete(pollution.id)">Supprimer</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+</section>

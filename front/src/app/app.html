@@ -14,6 +14,17 @@
         Pollutions
       </a>
       <a
+        routerLink="/favoris"
+        routerLinkActive="layout__link--active"
+        ariaCurrentWhenActive="page"
+        class="layout__link layout__link--favorites"
+      >
+        Favoris
+        @if (favoritesService.count() > 0) {
+          <span class="favorites-badge">{{ favoritesService.count() }}</span>
+        }
+      </a>
+      <a
         routerLink="/users"
         routerLinkActive="layout__link--active"
         ariaCurrentWhenActive="page"

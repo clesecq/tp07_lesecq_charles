@@ -166,6 +166,15 @@
                 }
               </td>
               <td class="table__actions">
+                <button 
+                  type="button" 
+                  (click)="toggleFavorite(pollution.id)"
+                  [title]="isFavorite(pollution.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'"
+                  class="btn-favorite"
+                  [class.btn-favorite--active]="isFavorite(pollution.id)"
+                >
+                  {{ isFavorite(pollution.id) ? '★' : '☆' }}
+                </button>
                 <a [routerLink]="['/pollutions', pollution.id]">Details</a>
                 <button type="button" (click)="onDelete(pollution.id)">Supprimer</button>
               </td>

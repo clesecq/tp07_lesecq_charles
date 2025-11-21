@@ -8,6 +8,7 @@ import { PollutionService } from '../pollution.service';
 import { Pollution, PollutionPayload, PollutionType } from '../pollution.model';
 import { finiteNumberValidator, validDateTimeValidator } from '../pollution.validators';
 import { PollutionRecapComponent } from './pollution-recap.component.js';
+import { FavoritesService } from '../favorites.service';
 
 @Component({
   selector: 'app-pollution-list',
@@ -20,6 +21,7 @@ export class PollutionListComponent {
   private readonly pollutionService = inject(PollutionService);
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly destroyRef = inject(DestroyRef);
+  readonly favoritesService = inject(FavoritesService);
 
   readonly pollutions = this.pollutionService.pollutions;
   readonly isLoading = this.pollutionService.isLoading;
@@ -193,5 +195,13 @@ export class PollutionListComponent {
 
   labelType(type: PollutionType) {
     return this.typeOptions.find((option) => option.value === type)?.label ?? type;
+  }
+
+  toggleFavorite(pollutionId: number) {
+    this.favoritesService.toggle(pollutionId);
+  }
+
+  isFavorite(pollutionId: number): boolean {
+    return this.favoritesService.isFavorite(pollutionId);
   }
 }

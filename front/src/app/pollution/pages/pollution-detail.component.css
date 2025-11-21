@@ -22,6 +22,39 @@
   font-size: 1.75rem;
 }
 
+.header__title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-favorite-large {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.6rem;
+  border: 2px solid #d1d5db;
+  background: #ffffff;
+  color: #6b7280;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-favorite-large:hover {
+  border-color: #fbbf24;
+  background: #fef3c7;
+  color: #f59e0b;
+}
+
+.btn-favorite-large--active {
+  border-color: #fbbf24;
+  background: #fef3c7;
+  color: #f59e0b;
+}
+
 .alert {
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
