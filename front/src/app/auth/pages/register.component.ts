@@ -1,11 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { AsyncPipe } from '@angular/common';
 import { AuthService, RegisterPayload } from '../auth.service';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, AsyncPipe],
   template: `
     <div class="auth-container">
       <div class="auth-card">
@@ -14,9 +15,9 @@ import { AuthService, RegisterPayload } from '../auth.service';
           <p>Rejoignez-nous dès maintenant</p>
         </div>
 
-        @if (authService.error()) {
+        @if (authService.error$ | async; as error) {
           <div class="error-message">
-            {{ authService.error() }}
+            {{ error }}
           </div>
         }
 
@@ -119,10 +120,10 @@ import { AuthService, RegisterPayload } from '../auth.service';
 
           <button 
             type="submit" 
-            [disabled]="registerForm.invalid || authService.isLoading()"
+            [disabled]="registerForm.invalid || (authService.isLoading$ | async)"
             class="btn-primary"
           >
-            @if (authService.isLoading()) {
+            @if (authService.isLoading$ | async) {
               Création en cours...
             } @else {
               Créer mon compte

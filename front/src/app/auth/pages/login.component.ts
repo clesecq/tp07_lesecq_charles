@@ -1,11 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { AsyncPipe } from '@angular/common';
 import { AuthService, LoginPayload } from '../auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, AsyncPipe],
   template: `
     <div class="auth-container">
       <div class="auth-card">
@@ -14,9 +15,9 @@ import { AuthService, LoginPayload } from '../auth.service';
           <p>Connectez-vous à votre compte</p>
         </div>
 
-        @if (authService.error()) {
+        @if (authService.error$ | async; as error) {
           <div class="error-message">
-            {{ authService.error() }}
+            {{ error }}
           </div>
         }
 
@@ -51,10 +52,10 @@ import { AuthService, LoginPayload } from '../auth.service';
 
           <button 
             type="submit" 
-            [disabled]="loginForm.invalid || authService.isLoading()"
+            [disabled]="loginForm.invalid || (authService.isLoading$ | async)"
             class="btn-primary"
           >
-            @if (authService.isLoading()) {
+            @if (authService.isLoading$ | async) {
               Connexion en cours...
             } @else {
               Se connecter

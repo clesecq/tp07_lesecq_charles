@@ -1,15 +1,19 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal, computed } from '@angular/core';
-import { catchError, finalize, tap, throwError } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { catchError, finalize, tap, throwError, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
+import { Store } from '@ngxs/store';
+import {
+  AuthUser,
+  SetUser,
+  ClearUser,
+  SetAuthLoading,
+  SetAuthError,
+  AuthState
+} from './state/auth.state';
 
-export interface AuthUser {
-  id: string;
-  nom: string;
-  prenom: string;
-  login: string;
-}
+export type { AuthUser };
 
 export interface LoginPayload {
   login: string;
@@ -27,75 +31,58 @@ export interface RegisterPayload {
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly store = inject(Store);
   private readonly baseUrl = `${environment.apiUrl}/utilisateur`;
 
-  private readonly currentUserState = signal<AuthUser | null>(null);
-  private readonly loadingState = signal(false);
-  private readonly errorState = signal<string | null>(null);
+  readonly currentUser$: Observable<AuthUser | null> = this.store.select(AuthState.user);
+  readonly isLoading$: Observable<boolean> = this.store.select(AuthState.loading);
+  readonly error$: Observable<string | null> = this.store.select(AuthState.error);
+  readonly isAuthenticated$: Observable<boolean> = this.store.select(AuthState.isAuthenticated);
 
-  readonly currentUser = computed(() => this.currentUserState());
-  readonly isLoading = computed(() => this.loadingState());
-  readonly error = computed(() => this.errorState());
-  readonly isAuthenticated = computed(() => this.currentUserState() !== null);
+  get currentUser(): AuthUser | null {
+    return this.store.selectSnapshot(AuthState.user);
+  }
 
-  constructor() {
-    // Charger l'utilisateur depuis le localStorage au démarrage
-    this.loadUserFromStorage();
+  get isAuthenticated(): boolean {
+    return this.store.selectSnapshot(AuthState.isAuthenticated);
   }
 
   login(payload: LoginPayload) {
-    this.loadingState.set(true);
-    this.errorState.set(null);
+    this.store.dispatch(new SetAuthLoading(true));
+    this.store.dispatch(new SetAuthError(null));
 
     return this.http.post<AuthUser>(`${this.baseUrl}/login`, payload).pipe(
       tap((user) => {
-        this.currentUserState.set(user);
-        this.saveUserToStorage(user);
+        this.store.dispatch(new SetUser(user));
       }),
       catchError((error) => {
-        this.errorState.set('Login ou mot de passe incorrect.');
+        this.store.dispatch(new SetAuthError('Login ou mot de passe incorrect.'));
         return throwError(() => error);
       }),
-      finalize(() => this.loadingState.set(false))
+      finalize(() => this.store.dispatch(new SetAuthLoading(false)))
     );
   }
 
   register(payload: RegisterPayload) {
-    this.loadingState.set(true);
-    this.errorState.set(null);
+    this.store.dispatch(new SetAuthLoading(true));
+    this.store.dispatch(new SetAuthError(null));
 
     return this.http.post<AuthUser>(`${environment.apiUrl}/users`, payload).pipe(
       tap((user) => {
-        this.currentUserState.set(user);
-        this.saveUserToStorage(user);
+        this.store.dispatch(new SetUser(user));
       }),
       catchError((error) => {
-        this.errorState.set("Impossible de créer le compte. Le login existe peut-être déjà.");
+        this.store.dispatch(
+          new SetAuthError("Impossible de créer le compte. Le login existe peut-être déjà.")
+        );
         return throwError(() => error);
       }),
-      finalize(() => this.loadingState.set(false))
+      finalize(() => this.store.dispatch(new SetAuthLoading(false)))
     );
   }
 
   logout() {
-    this.currentUserState.set(null);
-    localStorage.removeItem('currentUser');
+    this.store.dispatch(new ClearUser());
     this.router.navigate(['/login']);
-  }
-
-  private saveUserToStorage(user: AuthUser) {
-    localStorage.setItem('currentUser', JSON.stringify(user));
-  }
-
-  private loadUserFromStorage() {
-    const userJson = localStorage.getItem('currentUser');
-    if (userJson) {
-      try {
-        const user = JSON.parse(userJson);
-        this.currentUserState.set(user);
-      } catch (e) {
-        localStorage.removeItem('currentUser');
-      }
-    }
   }
 }
