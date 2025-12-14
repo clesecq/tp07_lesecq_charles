@@ -1,14 +1,28 @@
 import { provideHttpClient, withFetch } from '@angular/common/http';
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  provideBrowserGlobalErrorListeners,
+  provideZoneChangeDetection
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { provideStore } from '@ngxs/store';
+import { withNgxsStoragePlugin } from '@ngxs/storage-plugin';
 
 import { routes } from './app.routes';
+import { FavoritesState } from './pollution/state/favorites.state';
+import { AuthState } from './auth/state/auth.state';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withFetch())
+    provideHttpClient(withFetch()),
+    provideStore(
+      [FavoritesState, AuthState],
+      withNgxsStoragePlugin({
+        keys: ['favorites', 'auth']
+      })
+    )
   ]
 };
