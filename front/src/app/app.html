@@ -20,8 +20,10 @@
         class="layout__link layout__link--favorites"
       >
         Favoris
-        @if (favoritesService.count() > 0) {
-          <span class="favorites-badge">{{ favoritesService.count() }}</span>
+        @if ((favoritesService.count$ | async); as count) {
+          @if (count > 0) {
+            <span class="favorites-badge">{{ count }}</span>
+          }
         }
       </a>
       <a
@@ -33,9 +35,11 @@
         Utilisateurs
       </a>
       
-      @if (authService.isAuthenticated()) {
+      @if (authService.isAuthenticated$ | async) {
         <div class="user-info">
-          <span class="user-name">{{ authService.currentUser()?.prenom }} {{ authService.currentUser()?.nom }}</span>
+          @if (authService.currentUser$ | async; as user) {
+            <span class="user-name">{{ user.prenom }} {{ user.nom }}</span>
+          }
           <button class="btn-logout" (click)="authService.logout()">Déconnexion</button>
         </div>
       } @else {
