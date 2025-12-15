@@ -1,10 +1,21 @@
 import { Request, Response } from "express";
 import db from "../models/index.js";
+import { validatePollutionData, validateNumericId } from "../utils/validators.js";
 
 const Pollution = db.pollutions;
 
 // Create a new pollution report
 export function create(req: Request, res: Response): void {
+  // Validate input
+  const validationErrors = validatePollutionData(req.body);
+  if (validationErrors.length > 0) {
+    res.status(400).send({
+      message: "Données invalides",
+      errors: validationErrors
+    });
+    return;
+  }
+
   const pollution = {
     title: req.body.title,
     type: req.body.type,
@@ -44,6 +55,15 @@ export function findAll(req: Request, res: Response): void {
 export function findById(req: Request, res: Response): void {
   const id = req.params.id;
 
+  // Validate ID
+  const idError = validateNumericId(id);
+  if (idError) {
+    res.status(400).send({
+      message: idError.message
+    });
+    return;
+  }
+
   Pollution.findByPk(id)
     .then(data => {
       if (data) {
@@ -64,6 +84,25 @@ export function findById(req: Request, res: Response): void {
 // Update a pollution by ID
 export function update(req: Request, res: Response): void {
   const id = req.params.id;
+
+  // Validate ID
+  const idError = validateNumericId(id);
+  if (idError) {
+    res.status(400).send({
+      message: idError.message
+    });
+    return;
+  }
+
+  // Validate input data
+  const validationErrors = validatePollutionData(req.body);
+  if (validationErrors.length > 0) {
+    res.status(400).send({
+      message: "Données invalides",
+      errors: validationErrors
+    });
+    return;
+  }
 
   Pollution.update(req.body, {
     where: { id: id }
@@ -96,6 +135,15 @@ export function update(req: Request, res: Response): void {
 // Delete a pollution by ID
 export function remove(req: Request, res: Response): void {
   const id = req.params.id;
+
+  // Validate ID
+  const idError = validateNumericId(id);
+  if (idError) {
+    res.status(400).send({
+      message: idError.message
+    });
+    return;
+  }
 
   Pollution.destroy({
     where: { id: id }

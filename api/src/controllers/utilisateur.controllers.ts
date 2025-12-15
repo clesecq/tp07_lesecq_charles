@@ -1,11 +1,22 @@
 import { Request, Response } from "express";
 import db from "../models/index.js";
 import { v4 as uuidv4 } from "uuid";
+import { validateUserCreation, validateLogin, validatePassword } from "../utils/validators.js";
 
 const Utilisateur = db.utilisateurs;
 
 // Create a new user
 export function create(req: Request, res: Response): void {
+  // Validate input
+  const validationErrors = validateUserCreation(req.body);
+  if (validationErrors.length > 0) {
+    res.status(400).send({
+      message: "Données invalides",
+      errors: validationErrors
+    });
+    return;
+  }
+
   const utilisateur = {
     id: uuidv4(),
     nom: req.body.nom,
@@ -45,27 +56,31 @@ export function login(req: Request, res: Response): void {
     password: req.body.password
   };
 
-  // Test
-  const pattern = /^[A-Za-z0-9]{1,20}$/;
-  if (pattern.test(utilisateur.login) && pattern.test(utilisateur.password)) {
-    Utilisateur.findOne({ where: { login: utilisateur.login } })
-      .then(data => {
-        if (data) {
-          res.send(data);
-        } else {
-          res.status(404).send({
-            message: `Cannot find Utilisateur with login=${utilisateur.login}.`
-          });
-        }
-      })
-      .catch(err => {
-        res.status(400).send({
-          message: "Error retrieving Utilisateur with login=" + utilisateur.login
-        });
-      });
-  } else {
+  // Validate credentials
+  const loginError = validateLogin(utilisateur.login);
+  const passwordError = validatePassword(utilisateur.password);
+  
+  if (loginError || passwordError) {
     res.status(400).send({
-      message: "Login ou password incorrect"
+      message: "Login ou password incorrect",
+      errors: [loginError, passwordError].filter(e => e !== null)
     });
+    return;
   }
+
+  Utilisateur.findOne({ where: { login: utilisateur.login } })
+    .then(data => {
+      if (data) {
+        res.send(data);
+      } else {
+        res.status(404).send({
+          message: `Cannot find Utilisateur with login=${utilisateur.login}.`
+        });
+      }
+    })
+    .catch(err => {
+      res.status(400).send({
+        message: "Error retrieving Utilisateur with login=" + utilisateur.login
+      });
+    });
 }
