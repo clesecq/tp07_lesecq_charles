@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { PollutionService } from '../pollution.service';
 import { FavoritesService } from '../favorites.service';
 import { PollutionType } from '../pollution.model';
+import { combineLatest, map } from 'rxjs';
 
 @Component({
   selector: 'app-favorites-list',
@@ -30,8 +31,10 @@ export class FavoritesListComponent {
     { value: 'autre', label: 'Autre' }
   ];
 
+  private readonly favoriteIds = toSignal(this.favoritesService.favorites$, { initialValue: [] });
+
   readonly favoritePollutions = computed(() => {
-    const favoriteIds = this.favoritesService.favorites();
+    const favoriteIds = this.favoriteIds();
     const allPollutions = this.pollutionService.pollutions();
     
     return allPollutions
