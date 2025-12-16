@@ -45,3 +45,12 @@ Thumbs.db
 # Environment files
 .env
 .env.local
+
+# Angular specific
+/dist/
+/out-tsc/
+/tmp/
+/coverage/
+/e2e/test-output/
+/.angular/
+.angular/
