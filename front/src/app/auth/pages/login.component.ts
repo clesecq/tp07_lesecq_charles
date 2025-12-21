@@ -2,7 +2,8 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
-import { AuthService, LoginPayload } from '../auth.service';
+import { Store } from '@ngxs/store';
+import { Login, AuthState } from '../state/auth.store';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +16,7 @@ import { AuthService, LoginPayload } from '../auth.service';
           <p>Connectez-vous à votre compte</p>
         </div>
 
-        @if (authService.error$ | async; as error) {
+        @if (error$ | async; as error) {
           <div class="error-message">
             {{ error }}
           </div>
@@ -23,16 +24,23 @@ import { AuthService, LoginPayload } from '../auth.service';
 
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
           <div class="form-group">
-            <label for="login">Login</label>
+            <label for="email">Email</label>
             <input 
-              id="login" 
-              type="text" 
-              formControlName="login"
-              placeholder="Votre login"
-              [class.invalid]="loginForm.get('login')?.invalid && loginForm.get('login')?.touched"
+              id="email" 
+              type="email" 
+              formControlName="email"
+              placeholder="votre.email@example.com"
+              [class.invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
             />
-            @if (loginForm.get('login')?.invalid && loginForm.get('login')?.touched) {
-              <div class="error">Le login est requis</div>
+            @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+              <div class="error">
+                @if (loginForm.get('email')?.hasError('required')) {
+                  L'email est requis
+                }
+                @if (loginForm.get('email')?.hasError('email')) {
+                  L'email n'est pas valide
+                }
+              </div>
             }
           </div>
 
@@ -52,10 +60,10 @@ import { AuthService, LoginPayload } from '../auth.service';
 
           <button 
             type="submit" 
-            [disabled]="loginForm.invalid || (authService.isLoading$ | async)"
+            [disabled]="loginForm.invalid || (loading$ | async)"
             class="btn-primary"
           >
-            @if (authService.isLoading$ | async) {
+            @if (loading$ | async) {
               Connexion en cours...
             } @else {
               Se connecter
@@ -201,10 +209,13 @@ import { AuthService, LoginPayload } from '../auth.service';
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
-  readonly authService = inject(AuthService);
+  private readonly store = inject(Store);
+
+  readonly error$ = this.store.select(AuthState.error);
+  readonly loading$ = this.store.select(AuthState.loading);
 
   readonly loginForm = this.fb.nonNullable.group({
-    login: ['', [Validators.required]],
+    email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]]
   });
 
@@ -213,14 +224,12 @@ export class LoginComponent {
       return;
     }
 
-    const payload: LoginPayload = this.loginForm.getRawValue();
+    const { email, password } = this.loginForm.getRawValue();
     
-    this.authService.login(payload).subscribe({
-      next: () => {
+    this.store.dispatch(new Login(email, password)).subscribe(() => {
+      const isAuthenticated = this.store.selectSnapshot(AuthState.isAuthenticated);
+      if (isAuthenticated) {
         this.router.navigate(['/pollutions']);
-      },
-      error: (error) => {
-        console.error('Login error:', error);
       }
     });
   }
