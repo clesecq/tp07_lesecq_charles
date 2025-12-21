@@ -1,23 +1,18 @@
 import { Application, Router } from "express";
 import * as pollution from "../controllers/pollution.controllers.js";
+import { authenticateJWT } from "../middleware/auth.middleware.js";
 
 export default (app: Application): void => {
   const router = Router();
 
-  // Create a new pollution
-  router.post("/", pollution.create);
-
-  // Retrieve all pollutions
+  // Public routes - Retrieve all/single pollutions
   router.get("/", pollution.findAll);
-
-  // Retrieve a single pollution with id
   router.get("/:id", pollution.findById);
 
-  // Update a pollution with id
-  router.put("/:id", pollution.update);
-
-  // Delete a pollution with id
-  router.delete("/:id", pollution.remove);
+  // Protected routes - Create, Update, Delete (require authentication)
+  router.post("/", authenticateJWT, pollution.create);
+  router.put("/:id", authenticateJWT, pollution.update);
+  router.delete("/:id", authenticateJWT, pollution.remove);
 
   app.use('/api/pollutions', router);
 };
