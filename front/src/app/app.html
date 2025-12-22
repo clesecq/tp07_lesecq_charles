@@ -35,12 +35,12 @@
         Utilisateurs
       </a>
       
-      @if (authService.isAuthenticated$ | async) {
+      @if (isAuthenticated$ | async) {
         <div class="user-info">
-          @if (authService.currentUser$ | async; as user) {
+          @if (currentUser$ | async; as user) {
             <span class="user-name">{{ user.prenom }} {{ user.nom }}</span>
           }
-          <button class="btn-logout" (click)="authService.logout()">Déconnexion</button>
+          <button class="btn-logout" (click)="logout()">Déconnexion</button>
         </div>
       } @else {
         <a

@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
-import { AuthService } from './auth/auth.service';
+import { Store } from '@ngxs/store';
 import { FavoritesService } from './pollution/favorites.service';
+import { AuthState, Logout } from './auth/state/auth.store';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +13,15 @@ import { FavoritesService } from './pollution/favorites.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class App {
-  readonly authService = inject(AuthService);
+  private readonly store = inject(Store);
+  private readonly router = inject(Router);
   readonly favoritesService = inject(FavoritesService);
+
+  readonly isAuthenticated$ = this.store.select(AuthState.isAuthenticated);
+  readonly currentUser$ = this.store.select(AuthState.user);
+
+  logout() {
+    this.store.dispatch(new Logout());
+    this.router.navigate(['/login']);
+  }
 }
