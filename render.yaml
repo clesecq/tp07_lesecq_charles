@@ -1,13 +1,12 @@
-# Exported from Render on 2025-11-21T17:39:05Z
 version: "1"
 projects:
 - name: tp
   environments:
   - name: Production
     databases:
-    - name: tp04-db
-      databaseName: tp04
-      user: tp04
+    - name: tp-db
+      databaseName: tp
+      user: tp
       plan: free
       region: frankfurt
       ipAllowList:
@@ -16,9 +15,9 @@ projects:
       postgresMajorVersion: "17"
     services:
     - type: web
-      name: tp06_lesecq_charles
+      name: tp07_lesecq_charles
       runtime: static
-      repo: https://github.com/clesecq/tp06_lesecq_charles
+      repo: https://github.com/clesecq/tp07_lesecq_charles
       buildCommand: pnpm install && pnpm build
       staticPublishPath: dist/tp/browser
       routes:
@@ -35,23 +34,23 @@ projects:
       envVars:
       - key: DB_USER
         fromService:
-          name: tp04-db
+          name: tp-db
           property: user
       - key: DB_PORT
         fromService:
-          name: tp04-db
+          name: tp-db
           property: port
       - key: DB_PASSWORD
         fromService:
-          name: tp04-db
+          name: tp-db
           property: password
       - key: DB_NAME
         fromService:
-          name: tp04-db
+          name: tp-db
           property: databaseName
       - key: DB_HOST
         fromService:
-          name: tp04-db
+          name: tp-db
           property: host
       - key: ACCESS_TOKEN_SECRET
         generateValue: true
