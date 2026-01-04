@@ -2,7 +2,8 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
-import { AuthService, RegisterPayload } from '../auth.service';
+import { Store } from '@ngxs/store';
+import { Register, AuthState } from '../state/auth.store';
 
 @Component({
   selector: 'app-register',
@@ -15,7 +16,7 @@ import { AuthService, RegisterPayload } from '../auth.service';
           <p>Rejoignez-nous dès maintenant</p>
         </div>
 
-        @if (authService.error$ | async; as error) {
+        @if (error$ | async; as error) {
           <div class="error-message">
             {{ error }}
           </div>
@@ -120,10 +121,10 @@ import { AuthService, RegisterPayload } from '../auth.service';
 
           <button 
             type="submit" 
-            [disabled]="registerForm.invalid || (authService.isLoading$ | async)"
+            [disabled]="registerForm.invalid || (loading$ | async)"
             class="btn-primary"
           >
-            @if (authService.isLoading$ | async) {
+            @if (loading$ | async) {
               Création en cours...
             } @else {
               Créer mon compte
@@ -275,7 +276,10 @@ import { AuthService, RegisterPayload } from '../auth.service';
 export class RegisterComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
-  readonly authService = inject(AuthService);
+  private readonly store = inject(Store);
+
+  readonly error$ = this.store.select(AuthState.error);
+  readonly loading$ = this.store.select(AuthState.loading);
 
   readonly registerForm = this.fb.nonNullable.group({
     nom: ['', [Validators.required]],
@@ -302,14 +306,12 @@ export class RegisterComponent {
       return;
     }
 
-    const { confirmPass, ...payload } = this.registerForm.getRawValue();
+    const { nom, prenom, login, pass } = this.registerForm.getRawValue();
     
-    this.authService.register(payload as RegisterPayload).subscribe({
-      next: () => {
+    this.store.dispatch(new Register(nom, prenom, login, pass)).subscribe(() => {
+      const isAuthenticated = this.store.selectSnapshot(AuthState.isAuthenticated);
+      if (isAuthenticated) {
         this.router.navigate(['/pollutions']);
-      },
-      error: (error) => {
-        console.error('Register error:', error);
       }
     });
   }
