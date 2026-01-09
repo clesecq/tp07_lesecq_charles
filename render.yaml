@@ -29,27 +29,27 @@ projects:
     - type: web
       name: tp_api_lesecq_charles
       runtime: node
-      repo: https://github.com/clesecq/tp06_lesecq_charles
+      repo: https://github.com/clesecq/tp07_lesecq_charles
       plan: free
       envVars:
       - key: DB_USER
-        fromService:
+        fromDatabase:
           name: tp-db
           property: user
       - key: DB_PORT
-        fromService:
+        fromDatabase:
           name: tp-db
           property: port
       - key: DB_PASSWORD
-        fromService:
+        fromDatabase:
           name: tp-db
           property: password
       - key: DB_NAME
-        fromService:
+        fromDatabase:
           name: tp-db
-          property: databaseName
+          property: database
       - key: DB_HOST
-        fromService:
+        fromDatabase:
           name: tp-db
           property: host
       - key: ACCESS_TOKEN_SECRET
