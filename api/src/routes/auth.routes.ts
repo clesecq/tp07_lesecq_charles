@@ -2,7 +2,7 @@ import { Router } from 'express';
 import * as authController from '../controllers/auth.controllers.js';
 import { authenticateJWT } from '../middleware/auth.middleware.js';
 
-const router = Router();
+const router: Router = Router();
 
 // Public routes
 router.post('/register', authController.register);
